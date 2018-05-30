@@ -63,13 +63,13 @@ public class ManejadorProductos {
     /* Toma la cadena pasada como parametro como criterio de búsqueda, para ir a la base de datos y buscar 
        todos los productos cuyo Id o nombre coincida con el criterio de búsqueda, luego devuelve la colección 
        de productos, sin devolver productos duplicados */
-    public static List<Producto> buscar(String cadena){
+    public static List<Producto> buscar(String busqueda){
         Conexion cn = new Conexion();
         ResultSet rs = null;
         List<Producto> productos = new ArrayList<>();
-        String sql = "SELECT * FROM Producto WHERE idProducto LIKE '%"+cadena+"%' OR nombre LIKE '%"+cadena+"%'";
+        String sql = "SELECT * FROM Producto WHERE idProducto LIKE ? OR nombre LIKE ?";
         try {
-            rs = cn.consultar(sql);
+            rs = cn.buscarProductos(sql, busqueda);
             while(rs.next()){
                 Producto p = new Producto();
                 p.idProducto = rs.getInt(1);

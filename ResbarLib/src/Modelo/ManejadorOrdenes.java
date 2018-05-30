@@ -192,12 +192,13 @@ public class ManejadorOrdenes {
     /* Toma el string que tiene el criterio de búsqueda y va a la base de datos a buscar todas aquellas ordenes 
        que cumplan con dicho criterio ya sea en el mesero, mesa, cliente o comentario. Devuelve una colección de 
        órdenes que cumplen con dicho criterio sin duplicados */
-    public static List<Orden> buscarActivas(String cadena){
+    public static List<Orden> buscarActivas(String busqueda){
         Conexion cn = new Conexion();
         ResultSet rs = null;
+        String sql = "SELECT * FROM Orden WHERE activa = true AND (mesa LIKE ? OR mesero LIKE ? OR cliente LIKE ? OR comentario LIKE ?)";
         List<Orden> ordenes = new ArrayList<>();
         try {
-            rs = cn.consultar("SELECT * FROM Orden WHERE activa = true AND (mesa LIKE '%"+cadena+"%' OR mesero LIKE '%"+cadena+"%' OR cliente LIKE '%"+cadena+"%' OR comentario LIKE '%"+cadena+"%')");
+            rs = cn.buscarOrdenesActivas(sql, busqueda);
             while(rs.next()){
                 Orden o = new Orden();
                 o.idOrden = rs.getInt(1);
