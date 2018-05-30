@@ -19,7 +19,7 @@ public class ManejadorParametros {
        de objetos parametros. */
     public static List<Parametro> obtener(){
         Conexion cn = new Conexion();
-        ResultSet rs;
+        ResultSet rs = null;
         List<Parametro> parametros = new ArrayList<>();
         try {
             rs = cn.consultar("SELECT * FROM Parametro");
@@ -30,13 +30,21 @@ public class ManejadorParametros {
                 p.valor = rs.getString(3);
                 parametros.add(p);
             }
-            cn.cerrar();
         } catch (SQLException | ClassNotFoundException ex) {
             try {
                 throw new ErrorAplicacion("ManejadorParametros.obtener()$Error: "+ex.getMessage());
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorParametros.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return parametros;
     }
@@ -54,7 +62,7 @@ public class ManejadorParametros {
        objeto parametro construido acorde a la tupla */
     public static Parametro obtener(int idParametro){
         Conexion cn = new Conexion();
-        ResultSet rs;
+        ResultSet rs = null;
         Parametro p = new Parametro();
         String sql = "SELECT * FROM Parametro WHERE idParametro = '"+idParametro+"'";
         try {
@@ -64,13 +72,21 @@ public class ManejadorParametros {
                 p.nombre = rs.getString(2);
                 p.valor = rs.getString(3);
             }
-            cn.cerrar();
         } catch (SQLException | ClassNotFoundException ex) {
             try {
                 throw new ErrorAplicacion("ManejadorParametros.obtener()$Error: "+ex.getMessage());
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return p;
     }

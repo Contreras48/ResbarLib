@@ -21,7 +21,7 @@ public class ManejadorCategorias extends Conexion{
     public static List<Categoria> obtener(boolean producto){
         Conexion cn = new Conexion();
         String sql = "SELECT * FROM Categoria";
-        ResultSet rs;
+        ResultSet rs = null;
         List<Categoria> categorias = new ArrayList<>();
         try {
             rs = cn.consultar(sql);
@@ -31,27 +31,36 @@ public class ManejadorCategorias extends Conexion{
                 c.nombre = rs.getString("nombre");
                 if(producto == true){
                     List<Producto> productos = new ArrayList<>();
-                    ResultSet rs2 = cn.consultar("SELECT * FROM Producto WHERE idCategoria = '"+c.idCategoria+"'");
-                    while(rs2.next()){
-                        Producto p = new Producto(); 
-                        p.idProducto = rs2.getInt(1);
-                        p.nombre = rs2.getString(2);
-                        p.precio = rs2.getDouble(3);
-                        p.categoria = c;
-                        p.area = rs2.getString(5).charAt(0);
-                        productos.add(p);
+                    try (ResultSet rs2 = cn.consultar("SELECT * FROM Producto WHERE idCategoria = '"+c.idCategoria+"'")) {
+                        while(rs2.next()){
+                            Producto p = new Producto();
+                            p.idProducto = rs2.getInt(1);
+                            p.nombre = rs2.getString(2);
+                            p.precio = rs2.getDouble(3);
+                            p.categoria = c;
+                            p.area = rs2.getString(5).charAt(0);
+                            productos.add(p);
+                        }
                     }
                     c.productos = productos;
                 }
                 categorias.add(c);
             }
-            cn.cerrar();
         } catch (SQLException | ClassNotFoundException ex) {
             try {
                 throw new ErrorAplicacion("ManejadorCategorias.Obtener()$Error: " + ex.getMessage());
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorCategorias.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return categorias;
     }  
@@ -109,20 +118,29 @@ public class ManejadorCategorias extends Conexion{
        uno a dicho valor. */
     public static Integer obtenerId(){
         Conexion cn = new Conexion();
+        ResultSet rs = null;
         String sql = "SELECT MAX(idCategoria) FROM Categoria";
         int id = 0;
         try {
-            ResultSet rs = cn.consultar(sql);
+            rs = cn.consultar(sql);
             while(rs.next()){
                 id = rs.getInt(1);
             }
-            cn.cerrar();
         } catch (SQLException | ClassNotFoundException ex) {
             try {
                 throw new ErrorAplicacion("ManejadorCategorias.obtenerId()$Error: "+ex.getMessage());
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorCategorias.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
 
         return id + 1;

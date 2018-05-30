@@ -20,7 +20,7 @@ public class ManejadorOrdenes {
        objetos Orden */
     public static List<Orden> ordenesActivas(){
         Conexion cn = new Conexion();
-        ResultSet rs;
+        ResultSet rs = null;
         List<Orden> ordenes = new ArrayList<>();
         try {
             rs = cn.consultar("SELECT * FROM Orden WHERE activa = true");
@@ -34,39 +34,51 @@ public class ManejadorOrdenes {
                 o.comentario = rs.getString(6);
                 o.total = rs.getDouble(7);
                 o.activa = rs.getBoolean(8);
-                ResultSet rs2 = cn.consultar("SELECT * FROM DetalleOrden WHERE idOrden = '"+o+"'");
-                List<DetalleOrden> detalles = new ArrayList<>();
-                while(rs2.next()){
-                    DetalleOrden d = new DetalleOrden();
-                    ResultSet rs3 = cn.consultar("SELECT * FROM Producto WHERE idProducto = '"+rs2.getInt(2)+"'");
-                    while(rs3.next()){
-                        Producto p = new Producto();
-                        p.idProducto = rs3.getInt(1);
-                        p.nombre = rs3.getString(2);
-                        p.precio = rs3.getDouble(3);
-                        ResultSet rs4 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '" + rs3.getInt(4) + "'");
-                        while (rs4.next()) {
-                            Categoria c = new Categoria();
-                            c.idCategoria = rs4.getInt(1);
-                            c.nombre = rs4.getString(2);
-                            p.categoria = c;
+                List<DetalleOrden> detalles;
+                try (ResultSet rs2 = cn.consultar("SELECT * FROM DetalleOrden WHERE idOrden = '"+o+"'")) {
+                    detalles = new ArrayList<>();
+                    while(rs2.next()){
+                        DetalleOrden d = new DetalleOrden();
+                        try (ResultSet rs3 = cn.consultar("SELECT * FROM Producto WHERE idProducto = '"+rs2.getInt(2)+"'")) {
+                            while(rs3.next()){
+                                Producto p = new Producto();
+                                p.idProducto = rs3.getInt(1);
+                                p.nombre = rs3.getString(2);
+                                p.precio = rs3.getDouble(3);
+                                try (ResultSet rs4 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '" + rs3.getInt(4) + "'")) {
+                                    while (rs4.next()) {
+                                        Categoria c = new Categoria();
+                                        c.idCategoria = rs4.getInt(1);
+                                        c.nombre = rs4.getString(2);
+                                        p.categoria = c;
+                                    }
+                                }
+                                p.area = rs.getString(5).charAt(0);
+                                d.producto = p;
+                                d.cantidad = rs2.getDouble(3);
+                            }
                         }
-                        p.area = rs.getString(5).charAt(0);
-                        d.producto = p;
-                        d.cantidad = rs2.getDouble(3);
+                        detalles.add(d);
                     }
-                    detalles.add(d);
                 }
                 o.detalle = detalles;
                 ordenes.add(o);
             }
-            cn.cerrar();
         } catch (SQLException | ClassNotFoundException ex) {
             try {
                 throw new ErrorAplicacion("ManejadorOrdenes.obtenerActivas()$Error: "+ex.getMessage());
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorOrdenes.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return ordenes;
     }
@@ -74,7 +86,7 @@ public class ManejadorOrdenes {
     /* Recibe un entero que indica el ID de la orden y luego devuelve el objeto orden completo que corresponde */
     public static Orden Obtener(Integer idOrden){
         Conexion cn = new Conexion();
-        ResultSet rs;
+        ResultSet rs = null;
         Orden o = new Orden();
         try {
             rs = cn.consultar("SELECT * FROM Orden WHERE idOrden = '"+idOrden+"'");
@@ -87,28 +99,32 @@ public class ManejadorOrdenes {
                 o.comentario = rs.getString(6);
                 o.total= rs.getDouble(7);
                 o.activa = rs.getBoolean(8);
-                ResultSet rs2 = cn.consultar("SELECT * FROM DetalleOrden WHERE idOrden = '"+o.idOrden+"'");
-                List<DetalleOrden> detalles = new ArrayList<>();
-                while(rs2.next()){
-                    DetalleOrden d = new DetalleOrden();
-                    ResultSet rs3 = cn.consultar("SELECT * FROM Producto WHERE idProducto = '"+rs2.getInt(2)+"'");
-                    while(rs3.next()){
-                        Producto p = new Producto();
-                        p.idProducto = rs3.getInt(1);
-                        p.nombre = rs3.getString(2);
-                        p.precio = rs3.getDouble(3);
-                        ResultSet rs4 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '" + rs3.getInt(4) + "'");
-                        while (rs4.next()) {
-                            Categoria c = new Categoria();
-                            c.idCategoria = rs4.getInt(1);
-                            c.nombre = rs4.getString(2);
-                            p.categoria = c;
+                List<DetalleOrden> detalles;
+                try (ResultSet rs2 = cn.consultar("SELECT * FROM DetalleOrden WHERE idOrden = '"+o.idOrden+"'")) {
+                    detalles = new ArrayList<>();
+                    while(rs2.next()){
+                        DetalleOrden d = new DetalleOrden();
+                        try (ResultSet rs3 = cn.consultar("SELECT * FROM Producto WHERE idProducto = '"+rs2.getInt(2)+"'")) {
+                            while(rs3.next()){
+                                Producto p = new Producto();
+                                p.idProducto = rs3.getInt(1);
+                                p.nombre = rs3.getString(2);
+                                p.precio = rs3.getDouble(3);
+                                try (ResultSet rs4 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '" + rs3.getInt(4) + "'")) {
+                                    while (rs4.next()) {
+                                        Categoria c = new Categoria();
+                                        c.idCategoria = rs4.getInt(1);
+                                        c.nombre = rs4.getString(2);
+                                        p.categoria = c;
+                                    }
+                                }
+                                p.area = rs.getString(5).charAt(0);
+                                d.producto = p;
+                                d.cantidad = rs2.getDouble(3);
+                            }
                         }
-                        p.area = rs.getString(5).charAt(0);
-                        d.producto = p;
-                        d.cantidad = rs2.getDouble(3);
+                        detalles.add(d);
                     }
-                    detalles.add(d);
                 }
                 o.detalle = detalles;
             }
@@ -118,6 +134,15 @@ public class ManejadorOrdenes {
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorOrdenes.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return o;
     }
@@ -145,8 +170,9 @@ public class ManejadorOrdenes {
                     } catch (ErrorAplicacion ex1) {
                         Logger.getLogger(ManejadorOrdenes.class.getName()).log(Level.SEVERE, null, ex1);
                     }
+                }finally{
+                    cn.cerrar();
                 }
-                cn.cerrar();
             }else{
                 try {
                 throw new ErrorAplicacion("ManejadorOrdenes.actualizar()$El total no puede ser menor o igual a cero");
@@ -168,7 +194,7 @@ public class ManejadorOrdenes {
        órdenes que cumplen con dicho criterio sin duplicados */
     public static List<Orden> buscarActivas(String cadena){
         Conexion cn = new Conexion();
-        ResultSet rs;
+        ResultSet rs = null;
         List<Orden> ordenes = new ArrayList<>();
         try {
             rs = cn.consultar("SELECT * FROM Orden WHERE activa = true AND (mesa LIKE '%"+cadena+"%' OR mesero LIKE '%"+cadena+"%' OR cliente LIKE '%"+cadena+"%' OR comentario LIKE '%"+cadena+"%')");
@@ -182,28 +208,32 @@ public class ManejadorOrdenes {
                 o.comentario = rs.getString(6);
                 o.total = rs.getDouble(7);
                 o.activa = rs.getBoolean(8);
-                ResultSet rs2 = cn.consultar("SELECT * FROM DetalleOrden WHERE idOrden = '"+o.idOrden+"'");
-                List<DetalleOrden> detalles = new ArrayList<>();
-                while(rs2.next()){
-                    DetalleOrden d = new DetalleOrden();
-                    ResultSet rs3 = cn.consultar("SELECT * FROM Producto WHERE idProducto = '"+rs2.getInt(2)+"'");
-                    while(rs3.next()){
-                        Producto p = new Producto();
-                        p.idProducto = rs3.getInt(1);
-                        p.nombre = rs3.getString(2);
-                        p.precio = rs3.getDouble(3);
-                        ResultSet rs4 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '" + rs3.getInt(4) + "'");
-                        while (rs4.next()) {
-                            Categoria c = new Categoria();
-                            c.idCategoria = rs4.getInt(1);
-                            c.nombre = rs4.getString(2);
-                            p.categoria = c;
+                List<DetalleOrden> detalles;
+                try (ResultSet rs2 = cn.consultar("SELECT * FROM DetalleOrden WHERE idOrden = '"+o.idOrden+"'")) {
+                    detalles = new ArrayList<>();
+                    while(rs2.next()){
+                        DetalleOrden d = new DetalleOrden();
+                        try (ResultSet rs3 = cn.consultar("SELECT * FROM Producto WHERE idProducto = '"+rs2.getInt(2)+"'")) {
+                            while(rs3.next()){
+                                Producto p = new Producto();
+                                p.idProducto = rs3.getInt(1);
+                                p.nombre = rs3.getString(2);
+                                p.precio = rs3.getDouble(3);
+                                try (ResultSet rs4 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '" + rs3.getInt(4) + "'")) {
+                                    while (rs4.next()) {
+                                        Categoria c = new Categoria();
+                                        c.idCategoria = rs4.getInt(1);
+                                        c.nombre = rs4.getString(2);
+                                        p.categoria = c;
+                                    }
+                                }
+                                p.area = rs.getString(5).charAt(0);
+                                d.producto= p;
+                                d.cantidad = rs2.getDouble(3);
+                            }
                         }
-                        p.area = rs.getString(5).charAt(0);
-                        d.producto= p;
-                        d.cantidad = rs2.getDouble(3);
+                        detalles.add(d);
                     }
-                    detalles.add(d);
                 }
                 o.detalle = detalles;
                 ordenes.add(o);
@@ -215,6 +245,16 @@ public class ManejadorOrdenes {
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorOrdenes.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }
+        finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return ordenes;
     }
@@ -244,20 +284,29 @@ public class ManejadorOrdenes {
     /* Va a la base de datos y obtiene el ultimo Id de orden y le suma 1. */
     public static Integer obtenerId(){
         Conexion cn = new Conexion();
+        ResultSet rs = null;
         String sql = "SELECT MAX(idOrden) FROM Orden";
         int id = 0;
         try {
-            ResultSet rs = cn.consultar(sql);
+            rs = cn.consultar(sql);
             while(rs.next()){
                 id = rs.getInt(1);
             }
-            cn.cerrar();
         } catch (SQLException | ClassNotFoundException ex) {
             try {
                 throw new ErrorAplicacion("ManejadorOrdenes.obtenerId()$Error: "+ex.getMessage());
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorCategorias.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
 
         return id + 1;
@@ -267,7 +316,7 @@ public class ManejadorOrdenes {
        ordenes devueltas tienen que tener el campo activa en FALSE, pues son ordenes que ya fueron cobradas. */
     public static List<Orden> obtenerVentas(Date fecha){
         Conexion cn = new Conexion();
-        ResultSet rs;
+        ResultSet rs = null;
         List<Orden> ordenes = new ArrayList<>();
         try {
             rs = cn.consultar("SELECT * FROM Orden WHERE activa = false AND fecha = '"+fecha+"'");
@@ -289,6 +338,15 @@ public class ManejadorOrdenes {
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorOrdenes.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return ordenes;   
     }   
@@ -297,7 +355,7 @@ public class ManejadorOrdenes {
        Orden NO tienen cargado el detalle de sus productos. */
     public static List<Orden> obtenerVentas(Date fechaDesde, Date fechaHasta){
         Conexion cn = new Conexion();
-        ResultSet rs;
+        ResultSet rs = null;
         List<Orden> ordenes = new ArrayList<>();
         try {
             rs = cn.consultar("SELECT * FROM Orden WHERE activa = false AND fecha = '"+fechaDesde+"' BETWEEN '"+fechaHasta+"'");
@@ -319,6 +377,15 @@ public class ManejadorOrdenes {
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorOrdenes.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return ordenes;
     }

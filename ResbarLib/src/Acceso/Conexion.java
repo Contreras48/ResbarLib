@@ -24,7 +24,7 @@ public class Conexion {
     private final String usuario = "resbar";
     private final String contraseña = "Restaurante2018";
 
-    public Connection conectar() {
+    public void conectar() {
         if (cnx == null) {
             try {
                 Class.forName(JDBC_DRIVER);
@@ -40,13 +40,13 @@ public class Conexion {
                 Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
             } 
         }
-        return cnx;
     }
     
     public void cerrar() {
         if (cnx != null) {
             try {
                 cnx.close();
+                cnx = null;
             } catch (SQLException ex) {
                 Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -62,8 +62,7 @@ public class Conexion {
             sttm.executeUpdate(sql); //statement
         } catch (SQLException ex) {
             Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+        }    
     }
 
     //Método para Consultar
@@ -74,7 +73,7 @@ public class Conexion {
             rst = sttm.executeQuery(sql);  //resultset
         }  catch (SQLException e) {
             System.out.println();
-            System.exit(1);
+            //System.exit(1);
         }
         return rst;
     }

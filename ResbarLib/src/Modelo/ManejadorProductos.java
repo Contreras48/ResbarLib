@@ -19,7 +19,7 @@ public class ManejadorProductos {
        corresponden con el Identificador de categoría que se pasó como parámetro. */
     public static List<Producto> obtenerxCategoria(Integer idCategoria){
         Conexion cn = new Conexion();
-        ResultSet rs;
+        ResultSet rs = null;
         List<Producto> productos = new ArrayList<>();
         String sql = "SELECT * FROM Producto WHERE idCategoria = '"+idCategoria+"'";
         try {
@@ -29,23 +29,33 @@ public class ManejadorProductos {
                 p.idProducto = rs.getInt(1);
                 p.nombre = rs.getString(2);
                 p.precio = rs.getDouble(3);
-                ResultSet rs2 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '"+idCategoria+"'");
-                while(rs2.next()){
-                    Categoria c = new Categoria();
-                    c.idCategoria = rs2.getInt(1);
-                    c.nombre = rs2.getString(2);
-                    p.categoria = c;
+                try (ResultSet rs2 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '"+idCategoria+"'")) {
+                    while(rs2.next()){
+                        Categoria c = new Categoria();
+                        c.idCategoria = rs2.getInt(1);
+                        c.nombre = rs2.getString(2);
+                        p.categoria = c;
+                    }
                 }
                 p.area = rs.getString(5).charAt(0);
                 productos.add(p);
             }
-            cn.cerrar();
         } catch (SQLException | ClassNotFoundException ex) {
             try {
                 throw new ErrorAplicacion("ManejadorPrductos.obtenerxCategoria()$Error: "+ex.getMessage());
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex1);
             }
+            System.out.println(ex);
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return productos;
     }
@@ -55,9 +65,9 @@ public class ManejadorProductos {
        de productos, sin devolver productos duplicados */
     public static List<Producto> buscar(String cadena){
         Conexion cn = new Conexion();
-        ResultSet rs;
+        ResultSet rs = null;
         List<Producto> productos = new ArrayList<>();
-        String sql = "SELECT * FROM Producto WHERE idCategoria LIKE '%"+cadena+"%' OR nombre LIKE '%"+cadena+"%'";
+        String sql = "SELECT * FROM Producto WHERE idProducto LIKE '%"+cadena+"%' OR nombre LIKE '%"+cadena+"%'";
         try {
             rs = cn.consultar(sql);
             while(rs.next()){
@@ -65,23 +75,32 @@ public class ManejadorProductos {
                 p.idProducto = rs.getInt(1);
                 p.nombre = rs.getString(2);
                 p.precio = rs.getDouble(3);
-//                ResultSet rs2 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '"+idCategoria+"'");
-//                while(rs2.next()){
-//                    Categoria c = new Categoria();
-//                    c.setIdCategoria(rs2.getInt(1));
-//                    c.setNombre(rs.getString(2));
-//                    p.setCategoria(c);
-//                }
+                try (ResultSet rs2 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '"+rs.getInt(4)+"'")) {
+                    while(rs2.next()){
+                        Categoria c = new Categoria();
+                        c.idCategoria = rs2.getInt(1);
+                        c.nombre = rs.getString(2);
+                        p.categoria = c;
+                    }
+                }
                 p.area = rs.getString(5).charAt(0);
                 productos.add(p);
             }
-            cn.cerrar();
         } catch (SQLException | ClassNotFoundException ex) {
             try {
                 throw new ErrorAplicacion("ManejadorPrductos.buscar()$Error: "+ex.getMessage());
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return productos;
     }
@@ -115,7 +134,7 @@ public class ManejadorProductos {
        el valor del parámetro */
     public static Producto obtener(Integer idProducto){
         Conexion cn = new Conexion();
-        ResultSet rs;
+        ResultSet rs = null;
         Producto p = new Producto();
         String sql = "SELECT * FROM Producto WHERE idProducto = '"+idProducto+"'";
         try {
@@ -124,22 +143,31 @@ public class ManejadorProductos {
                 p.idProducto = rs.getInt(1);
                 p.nombre = rs.getString(2);
                 p.precio = rs.getDouble(3);
-//                ResultSet rs2 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '"+idCategoria+"'");
-//                while(rs2.next()){
-//                    Categoria c = new Categoria();
-//                    c.setIdCategoria(rs2.getInt(1));
-//                    c.setNombre(rs.getString(2));
-//                    p.setCategoria(c);
-//                }
+                try (ResultSet rs2 = cn.consultar("SELECT * FROM Categoria WHERE idCategoria = '"+rs.getInt(4)+"'")) {
+                    while(rs2.next()){
+                        Categoria c = new Categoria();
+                        c.idCategoria = rs2.getInt(1);
+                        c.nombre = rs.getString(2);
+                        p.categoria = c;
+                    }
+                }
                 p.area = rs.getString(5).charAt(0);
             }
-            cn.cerrar();
         } catch (SQLException | ClassNotFoundException ex) {
             try {
                 throw new ErrorAplicacion("ManejadorPrductos.obtener()$Error: "+ex.getMessage());
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
         return p;
     }
@@ -148,20 +176,29 @@ public class ManejadorProductos {
        uno a dicho valor */
     public static Integer obtenerId(){
         Conexion cn = new Conexion();
+        ResultSet rs = null;
         String sql = "SELECT MAX(idProducto) FROM Producto";
         int id = 0;
         try {
-            ResultSet rs = cn.consultar(sql);
+            rs = cn.consultar(sql);
             while(rs.next()){
                 id = rs.getInt(1);
             }
-            cn.cerrar();
         } catch (SQLException | ClassNotFoundException ex) {
             try {
                 throw new ErrorAplicacion("ManejadorCategorias.obtenerId()$Error: "+ex.getMessage());
             } catch (ErrorAplicacion ex1) {
                 Logger.getLogger(ManejadorCategorias.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }finally{
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            cn.cerrar();
         }
 
         return id + 1;
