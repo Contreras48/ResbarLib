@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -51,7 +49,7 @@ public class ManejadorParametros {
     
     /* Actualiza el valor del parámetro en la base de datos, no se puede actualizar ni el ID, ni el nombre, solo 
        se puede modificar el campo valor */
-    public void actualizar(Parametro p) throws ErrorAplicacion{
+    public static void actualizar(Parametro p) throws ErrorAplicacion{
         Conexion cn = new Conexion();
         String sql = "UPDATE Parametro SET valor = '"+p.valor+"' WHERE idParametro = '"+p.idParametro+"'";
         if (!p.valor.isEmpty() && p.valor != null) {

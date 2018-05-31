@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -53,13 +51,13 @@ public class ManejadorCategorias extends Conexion{
                 try {
                     rs.close();
                 } catch (SQLException ex) {
-                    Logger.getLogger(ManejadorProductos.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new ErrorAplicacion("ManejadorCategorias.Obtener()$Error: " + ex.getMessage());
                 }
             }
             try {
                 cn.cerrar();
             } catch (SQLException ex) {
-                Logger.getLogger(ManejadorCategorias.class.getName()).log(Level.SEVERE, null, ex);
+                throw new ErrorAplicacion("ManejadorCategorias.Obtener()$Error: " + ex.getMessage());
             }
         }
         return categorias;
@@ -68,7 +66,7 @@ public class ManejadorCategorias extends Conexion{
     /* Si se desea modificar el objeto “categoria” este actualizara en la base de datos cuando este ya este 
        modoficado, no se modificara el IdCategoria */
     public static void actualizar(Categoria c) throws ErrorAplicacion{
-        if(!c.nombre.isEmpty() && c.nombre != null) {
+        if(!c.nombre.isEmpty() && c.nombre != null && c.idCategoria>0) {
             Conexion cn = new Conexion();
             try {
                 String sql = "UPDATE Categoria SET nombre = '"+c.nombre+"' WHERE idCategoria = '"+c.idCategoria+"'";
@@ -83,13 +81,17 @@ public class ManejadorCategorias extends Conexion{
                 }
             }
         }else{
-            throw new ErrorAplicacion("ManejadorCategorias.actualizar()$El campo nombre no debe estar vacio");
+            if(c.idCategoria<=0){
+                throw new ErrorAplicacion("ManejadorCategorias.actualizar()$El campo Id Categoria debe de ser mayor a 0");
+            }else{
+                throw new ErrorAplicacion("ManejadorCategorias.actualizar()$El campo nombre no debe estar vacio");
+            }
         }
     }
     
      /* Agrega el objeto “categoria” a la base de datos. */
     public static void insertar(Categoria c) throws ErrorAplicacion{
-        if(c.idCategoria > 0 && (!c.nombre.isEmpty() || c.nombre != null)){
+        if(c.idCategoria > 0 && (!c.nombre.isEmpty() && c.nombre != null)){
             Conexion cn = new Conexion();
             String sql = "INSERT INTO Categoria(idCategoria, nombre) VALUES('"+c.idCategoria+"', '"+c.nombre+"')";
             try {
@@ -105,7 +107,11 @@ public class ManejadorCategorias extends Conexion{
             }
             
         }else{
-            throw new ErrorAplicacion("ManejadorCategorias.insertar()$los campos idCategoria, nombre son invalidos o estan vacios");
+            if(c.idCategoria<=0){
+                throw new ErrorAplicacion("ManejadorCategorias.actualizar()$El campo Id Categoria debe de ser mayor a 0");
+            }else{
+                throw new ErrorAplicacion("ManejadorCategorias.actualizar()$El campo nombre no debe estar vacio");
+            }
         }
     }
     
@@ -126,7 +132,12 @@ public class ManejadorCategorias extends Conexion{
                 }
             }
         }else{
-            throw new ErrorAplicacion("ManejadorCategorias.eliminar()$Campo idCategoria vacio o es negativo");
+            if(c.idCategoria<=0){
+                throw new ErrorAplicacion("ManejadorCategorias.eliminar()$Campo idCategoria no puede ser menor o igual a 0");
+            }else{
+                throw new ErrorAplicacion("ManejadorCategorias.eliminar()$Campo idCategoria no puede estar vacio");
+            }
+            
         }
     }
     
