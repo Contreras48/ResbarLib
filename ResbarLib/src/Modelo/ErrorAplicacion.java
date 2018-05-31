@@ -17,7 +17,7 @@ public class ErrorAplicacion extends Exception{
     /* En el mensaje se usa el carácter $ como separador, colocando primero el objeto y el método que
        produce la excepción y luego el mensaje de la misma. */
     public ErrorAplicacion(String msg){
-        
+        super(msg);
     }
     
 }
