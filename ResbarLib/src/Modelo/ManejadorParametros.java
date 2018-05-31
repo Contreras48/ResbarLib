@@ -52,7 +52,7 @@ public class ManejadorParametros {
     public static void actualizar(Parametro p) throws ErrorAplicacion{
         Conexion cn = new Conexion();
         String sql = "UPDATE Parametro SET valor = '"+p.valor+"' WHERE idParametro = '"+p.idParametro+"'";
-        if (!p.valor.isEmpty() && p.valor != null) {
+        if (!p.valor.isEmpty() && p.valor != null && p.idParametro>0 && p.nombre.isEmpty() && p.nombre==null ) {
             try {
                 cn.UID(sql);
             } catch (ClassNotFoundException | SQLException ex) {
@@ -65,19 +65,23 @@ public class ManejadorParametros {
                 }
             }
         }else{
-             throw new ErrorAplicacion("ManejadorParametros.actualizar()$El campo esta vacio o nulo");
+            if(p.idParametro<=0){
+                throw new ErrorAplicacion("ManejadorCategorias.actualizar()$El campo Id Categoria debe de ser mayor a 0");
+            }else{
+                throw new ErrorAplicacion("ManejadorCategorias.actualizar()$El campo nombre o valor no deben estar vacio");
+            }
         }
    
     }
     
     /* Toma el IDparametro y busca en la base de datos una tupla que coincida con dicho ID, luego devuelve un 
        objeto parametro construido acorde a la tupla */
-    public static Parametro obtener(int idParametro) throws ErrorAplicacion{
+    public static Parametro obtener(int idParametro) throws ErrorAplicacion {
         Conexion cn = new Conexion();
         ResultSet rs = null;
         Parametro p = new Parametro();
-        String sql = "SELECT * FROM Parametro WHERE idParametro = '"+idParametro+"'";
-        if(idParametro > 0){
+        String sql = "SELECT * FROM Parametro WHERE idParametro = '" + idParametro + "'";
+        if (idParametro > 0) {
             try {
                 rs = cn.consultar(sql);
                 while (rs.next()) {
@@ -101,7 +105,7 @@ public class ManejadorParametros {
                     throw new ErrorAplicacion("ManejadorParametros.obtener()$Error: " + ex.getMessage());
                 }
             }
-        }else{
+        } else {
             throw new ErrorAplicacion("ManejadorParametros.obtener()$El id no puede ser menor o igual a cero");
         }
         return p;
