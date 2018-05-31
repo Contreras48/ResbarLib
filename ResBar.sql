@@ -113,5 +113,20 @@ INSERT INTO `resbar`.`Parametro` (`idParametro`, `nombre`, `valor`) VALUES (04, 
 INSERT INTO `resbar`.`Parametro` (`idParametro`, `nombre`, `valor`) VALUES (05, 'NRC', '24367-5');
 INSERT INTO `resbar`.`Parametro` (`idParametro`, `nombre`, `valor`) VALUES (06, 'Giro', 'Cafeteria y Restaurante');
 INSERT INTO `resbar`.`Parametro` (`idParametro`, `nombre`, `valor`) VALUES (07, 'email', 'algo@gmail.com');
+INSERT INTO `Categoria` (`idCategoria`, `nombre`) VALUES (1, 'Bebidas');
+INSERT INTO `Categoria` (`idCategoria`, `nombre`) VALUES (2, 'boquitas');
+INSERT INTO `Categoria` (`idCategoria`, `nombre`) VALUES (3, 'postres');
+INSERT INTO `Categoria` (`idCategoria`, `nombre`) VALUES (4, 'plato fuerte');
+INSERT INTO `Producto` (`idProducto`, `nombre`, `precio`, `idCategoria`, `area`) VALUES
+(1, 'coca cola pequeña', '0.7500', 1, 'b'),
+(2, 'pastel de chocolate', '1.6000', 3, 'c'),
+(3, 'coca cola mediana', '1.5000', 1, 'b');
+INSERT INTO `Orden` (`idOrden`, `mesero`, `mesa`, `cliente`, `fecha`, `comentario`, `total`, `activa`) VALUES
+(1, 'eduardo magaña', '1', 'armando guerra', '2018-05-30 00:00:00', NULL, '0.0000', 1),
+(2, 'andrea rodriguez', '2', 'guadalupe ramos', '2018-05-30 00:00:00', NULL, '0.0000', 1);
+INSERT INTO `DetalleOrden` (`idOrden`, `idProducto`, `cantidad`) VALUES
+(1, 2, '2.00'),
+(1, 3, '2.00'),
+(2, 3, '1.00');
 COMMIT;
 
