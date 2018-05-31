@@ -17,7 +17,7 @@ public class ManejadorParametros {
     
     /* Va a la base de datos y obtiene todos los parametros que están en dicha tabla, devolviendo una colección 
        de objetos parametros. */
-    public static List<Parametro> obtener(){
+    public static List<Parametro> obtener()throws ErrorAplicacion, Exception{
         Conexion cn = new Conexion();
         ResultSet rs = null;
         List<Parametro> parametros = new ArrayList<>();
@@ -51,7 +51,7 @@ public class ManejadorParametros {
     
     /* Actualiza el valor del parámetro en la base de datos, no se puede actualizar ni el ID, ni el nombre, solo 
        se puede modificar el campo valor */
-    public void actualizar(Parametro p){
+    public void actualizar(Parametro p)throws ErrorAplicacion, Exception{
         Conexion cn = new Conexion();
         String sql = "UPDATE Parametro SET valor = '"+p.valor+"' WHERE idParametro = '"+p.idParametro+"'";
         cn.UID(sql);
@@ -60,7 +60,7 @@ public class ManejadorParametros {
     
     /* Toma el IDparametro y busca en la base de datos una tupla que coincida con dicho ID, luego devuelve un 
        objeto parametro construido acorde a la tupla */
-    public static Parametro obtener(int idParametro){
+    public static Parametro obtener(int idParametro)throws ErrorAplicacion, Exception{
         Conexion cn = new Conexion();
         ResultSet rs = null;
         Parametro p = new Parametro();

@@ -27,7 +27,7 @@ public class Orden {
     /* Almacena el total de consumo de la orden, para ello recorre toda su colección DETALLE 
        multiplicando el precio unitario por la cantidad y luego sumándolo para al final actualizar 
        la propiedad Total de la orden con el valor correcto */
-    public void calcularTotal() {
+    public void calcularTotal()throws ErrorAplicacion, Exception {
         for (DetalleOrden detalle1 : detalle) {
             total = total + (detalle1.producto.precio * detalle1.cantidad);
         }
@@ -37,7 +37,7 @@ public class Orden {
        un objeto DetalleOrden, y luego ver si ese producto ya está agregado a la orden, si ya está 
        agregado a la orden, entonces solo se suma la cantidad, sino se agrega a la colección DETALLE
        de la orden y se invoca calcular total */
-    public void agregarProducto(Producto p, double cantidad) {
+    public void agregarProducto(Producto p, double cantidad)throws ErrorAplicacion, Exception {
         DetalleOrden nuevoDetalle = new DetalleOrden();
         nuevoDetalle.producto = p;
         nuevoDetalle.cantidad = cantidad;
@@ -91,7 +91,7 @@ public class Orden {
     }
 
     /* Permite eliminar productos de una orden y actualiza el total de la orden. */
-    public void EliminarProducto(Producto p, double cantidad) {
+    public void EliminarProducto(Producto p, double cantidad)throws ErrorAplicacion, Exception {
         DetalleOrden detalleOrden = new DetalleOrden();
         detalleOrden.producto = p;
         detalleOrden.cantidad = cantidad;
