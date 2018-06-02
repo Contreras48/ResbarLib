@@ -1,5 +1,6 @@
 package Modelo;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -22,12 +23,13 @@ public class Orden {
     public String comentario;
     public double total;
     public boolean activa;
-    public List<DetalleOrden> detalle;
+    public List<DetalleOrden> detalle = new ArrayList<>();
 
     /* Almacena el total de consumo de la orden, para ello recorre toda su colección DETALLE 
        multiplicando el precio unitario por la cantidad y luego sumándolo para al final actualizar 
        la propiedad Total de la orden con el valor correcto */
     public void calcularTotal() {
+        total = 0;
         for (DetalleOrden detalle1 : detalle) {
             total = total + (detalle1.producto.precio * detalle1.cantidad);
         }
@@ -37,86 +39,68 @@ public class Orden {
        un objeto DetalleOrden, y luego ver si ese producto ya está agregado a la orden, si ya está 
        agregado a la orden, entonces solo se suma la cantidad, sino se agrega a la colección DETALLE
        de la orden y se invoca calcular total */
-    public void agregarProducto(Producto p, double cantidad) {
+    public void agregarProducto(Producto p, double cant) throws ErrorAplicacion {
         DetalleOrden nuevoDetalle = new DetalleOrden();
-        nuevoDetalle.producto = p;
-        nuevoDetalle.cantidad = cantidad;
-        boolean existe = false;
-        int posicion = 0;
-
-        //Comprobando el producto ya esta agregado en la orden
-        for (DetalleOrden detalle1 : detalle) {
-            if (detalle1.producto.equals(p)) {
-                existe = true;
-                break;
-            }
-            posicion++;
-        }
-
-        if (existe) {
-            if (cantidad > 0) {
-                detalle.get(posicion).cantidad = detalle.get(posicion).cantidad + cantidad;
-            } else {
-                try {
-                    throw new ErrorAplicacion("orden.agregarProducto$La cantidad debe ser mayor a cero");
-                } catch (ErrorAplicacion ex) {
-                    Logger.getLogger(Orden.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-
-        } else {
-            if (p.precio > 0) {
-                if (cantidad > 0) {
-                    DetalleOrden d = new DetalleOrden();
-                    d.cantidad = cantidad;
-                    d.producto = p;
-                    detalle.add(d);
-                } else {
-                    try {
-                        throw new ErrorAplicacion("orden.agregarProducto$La cantidad debe ser mayor a cero");
-                    } catch (ErrorAplicacion ex) {
-                        Logger.getLogger(Orden.class.getName()).log(Level.SEVERE, null, ex);
+        List<DetalleOrden> listaDetalle = new ArrayList<>();
+        if(p.idProducto > 0 && p.precio > 0){
+            if(cant > 0){
+                if (!detalle.isEmpty()) {
+                    int elementos = detalle.size();
+                    for (int i = 0; i < elementos; i++) {
+                        if (Objects.equals(detalle.get(i).producto.idProducto, p.idProducto)) {
+                            detalle.get(i).cantidad += cant;
+                            break;
+                        } else {
+                            if (i == (detalle.size() - 1)) {
+                                nuevoDetalle.producto = p;
+                                nuevoDetalle.cantidad = cant;
+                                detalle.add(nuevoDetalle);
+                            }
+                        }
                     }
+                } else {
+                    nuevoDetalle.producto = p;
+                    nuevoDetalle.cantidad = cant;
+                    detalle.add(nuevoDetalle);
                 }
-            } else {
-                try {
-                    throw new ErrorAplicacion("orden.agregarProducto$El precio debe ser mayor a cero");
-                } catch (ErrorAplicacion ex) {
-                    Logger.getLogger(Orden.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            }else{
+                throw new ErrorAplicacion("Orde.agregarProducto()$La cantidad no puede ser menor que 1");
             }
+        }else{
+            throw new ErrorAplicacion("Orde.agregarProducto()$El precio o el id son menores que 1");
         }
-
         calcularTotal();
     }
 
     /* Permite eliminar productos de una orden y actualiza el total de la orden. */
-    public void EliminarProducto(Producto p, double cantidad) {
-        DetalleOrden detalleOrden = new DetalleOrden();
-        detalleOrden.producto = p;
-        detalleOrden.cantidad = cantidad;
-
-        if (detalle.size() > 0) {
-            for (int i = 0; i < detalle.size(); i++) {
+    public void EliminarProducto(Producto p, double cant) throws ErrorAplicacion {
+        if (!detalle.isEmpty()) {
+            int elementos = detalle.size();
+            for (int i = 0; i < elementos; i++) {
                 if (Objects.equals(p.idProducto, detalle.get(i).producto.idProducto)) {
-                    detalle.remove(i);
-                }else{
-                    if (Objects.equals(detalle.size(), i+1)) {
-                        try {
-                            throw new ErrorAplicacion("orden.eliminarProducto$El producto no existe en la orden");
-                        } catch (ErrorAplicacion ex) {
-                            Logger.getLogger(Orden.class.getName()).log(Level.SEVERE, null, ex);
+                    if(cant > 0){
+                        if(cant < detalle.get(i).cantidad){
+                            detalle.get(i).cantidad -= cant;
+                        }else if(cant == detalle.get(i).cantidad){
+                            detalle.remove(i);
+                        }else{
+                            throw new ErrorAplicacion("orden.eliminarProducto$La cantidad introducida excede a la cantidad del prodcuto");
                         }
+                        
+                    }else{
+                        throw new ErrorAplicacion("orden.eliminarProducto$La cantidad no puede ser menor a 1");
+                    }
+                }else{
+                    if (detalle.size()-1 == i) {
+                        throw new ErrorAplicacion("orden.eliminarProducto$El producto no existe en la orden");
                     }
                 }
             }
         }else {
-            try {
-                throw new ErrorAplicacion("orden.eliminarProducto$No existen detalles en la orden");
-            } catch (ErrorAplicacion ex) {
-                Logger.getLogger(Orden.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            throw new ErrorAplicacion("orden.eliminarProducto$No existen detalles en la orden");
         }
+        
+        calcularTotal();
     }
 
 }

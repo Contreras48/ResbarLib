@@ -160,7 +160,8 @@ public class ManejadorOrdenes {
                 List<DetalleOrden> detalles = o.detalle;
                 try {
                     cn.UID("DELETE FROM DetalleOrden WHERE idOrden = '"+o.idOrden+"'");
-                    cn.UID("UPDATE Orden SET mesero = '"+o.mesero+"', mesa = '"+o.mesa+"', cliente = '"+o.cliente+"', fecha = '"+o.fecha+"', comentario = '"+o.comentario+"', total = '"+o.total+"', activa = '"+o.activa+"'");
+                    String sql = "UPDATE Orden SET mesero = ?, mesa = ?, cliente = ?, fecha = ?, comentario = ?, total = ?, activa = ? WHERE idOrden = ?";
+                    cn.actualizarOrden(sql, o.idOrden, o.mesero, o.mesa, o.cliente, new java.sql.Date(o.fecha.getTime()), o.comentario, o.total, o.activa);
                     for (int i = 0; i < detalles.size(); i++) {
                         cn.consultar("INSERT INTO DetalleOrden(idOrden, idProducto, cantidad) VALUES('"+o.idOrden+"', '" +detalles.get(i).producto.idProducto+"', '"+detalles.get(i).cantidad+"')");
                     }

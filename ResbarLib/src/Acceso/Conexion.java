@@ -2,11 +2,13 @@
 package Acceso;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import com.mysql.jdbc.Driver;
 
 /**
  *
@@ -73,6 +75,36 @@ public class Conexion {
         psttm.setString(4, "%" + busqueda + "%");
         rst = psttm.executeQuery();
         return rst;
+    }
+    
+    public void actualizarOrden(String sql,int id, String mesero, String mesa, String cliente, Date fecha, String comentario, double total, boolean activa) throws ClassNotFoundException, SQLException{
+         conectar();
+        psttm = cnx.prepareStatement(sql);
+        psttm.setString(1, mesero);
+        psttm.setString(2, mesa);
+        psttm.setString(3, cliente);
+        psttm.setDate(4, fecha);
+        psttm.setString(5, comentario);
+        psttm.setDouble(6, total);
+        psttm.setBoolean(7, activa);
+        psttm.setInt(8, id);
+        psttm.executeUpdate();
+    
+    }
+    
+    public void agregarOrden(String sql,int id, String mesero, String mesa, String cliente, Date fecha, String comentario, double total, boolean activa) throws ClassNotFoundException, SQLException{
+        conectar();
+        psttm = cnx.prepareStatement(sql);
+        psttm.setString(1, mesero);
+        psttm.setString(2, mesa);
+        psttm.setString(3, cliente);
+        psttm.setDate(4, fecha);
+        psttm.setString(5, comentario);
+        psttm.setDouble(6, total);
+        psttm.setBoolean(7, activa);
+        psttm.setInt(8, id);
+        psttm.executeUpdate();
+    
     }
 
 }
