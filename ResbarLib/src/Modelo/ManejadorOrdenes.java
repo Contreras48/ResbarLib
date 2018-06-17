@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -163,7 +164,7 @@ public class ManejadorOrdenes {
                     String sql = "UPDATE Orden SET mesero = ?, mesa = ?, cliente = ?, fecha = ?, comentario = ?, total = ?, activa = ? WHERE idOrden = ?";
                     cn.actualizarOrden(sql, o.idOrden, o.mesero, o.mesa, o.cliente, new java.sql.Date(o.fecha.getTime()), o.comentario, o.total, o.activa);
                     for (int i = 0; i < detalles.size(); i++) {
-                        cn.consultar("INSERT INTO DetalleOrden(idOrden, idProducto, cantidad) VALUES('"+o.idOrden+"', '" +detalles.get(i).producto.idProducto+"', '"+detalles.get(i).cantidad+"')");
+                        cn.UID("INSERT INTO DetalleOrden(idOrden, idProducto, cantidad) VALUES('"+o.idOrden+"', '" +detalles.get(i).producto.idProducto+"', '"+detalles.get(i).cantidad+"')");
                     }
                 } catch (SQLException | ClassNotFoundException ex) {
                         throw new ErrorAplicacion("ManejadorOrdenes.actualizar()$Error: "+ex.getMessage());
@@ -190,7 +191,7 @@ public class ManejadorOrdenes {
         ResultSet rs = null;
         String sql = "SELECT * FROM Orden WHERE activa = true AND (mesa LIKE ? OR mesero LIKE ? OR cliente LIKE ? OR comentario LIKE ?)";
         List<Orden> ordenes = new ArrayList<>();
-        if(busqueda != null || !busqueda.isEmpty()){
+        if(!Objects.equals(busqueda, null) || !Objects.equals(busqueda, "")){
             try {
                 rs = cn.buscarOrdenesActivas(sql, busqueda);
                 while (rs.next()) {
@@ -261,13 +262,13 @@ public class ManejadorOrdenes {
        mesero, mesa o cliente, no permite insertar ordenes con un total de cero o negativo, o que NO posean ningún producto en su detalle */
     public static void insertar(Orden o) throws ErrorAplicacion{
         Conexion cn = new Conexion();
-        String sql = "INSERT INTO Orden(idOrden, mesero, mesa, cliente, fecha, comentario, total , activa) VALUES('"+obtenerId()+"', '"+o.mesero+"', '"+o.mesa+"', '"+o.cliente+"', '"+o.fecha+"', '"+o.comentario+"', '"+o.total+"', '"+o.activa+"')";
-        if((o.cliente != null || !o.cliente.isEmpty()) && (o.mesero != null || !o.mesero.isEmpty()) && (o.mesa != null || !o.mesa.isEmpty())){
+        String sql = "INSERT INTO Orden(idOrden, mesero, mesa, cliente, fecha, comentario, total , activa) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+        if((!Objects.equals(o.cliente, null) || !Objects.equals(o.cliente, "")) && (o.mesero != null || !o.mesero.isEmpty()) && (o.mesa != null || !o.mesa.isEmpty())){
             if(o.detalle.size() > 0){
-                o.calcularTotal();
+                o.calcularTotal(); 
                 if(o.total > 0){
                     try {
-                        cn.UID(sql);
+                        cn.agregarOrden(sql, o.idOrden, o.mesero, o.mesa, o.cliente, new java.sql.Date(o.fecha.getTime()), o.comentario, o.total, o.activa);
                         for (DetalleOrden detalle : o.detalle) {
                             cn.UID("INSERT INTO DetalleOrden(idOrden, idProducto, cantidad) VALUES('" + o.idOrden + "', '" + detalle.producto.idProducto + "', '" + detalle.cantidad + "')");
                         }
