@@ -395,7 +395,7 @@ public class ManejadorOrdenes {
         List<Orden> ordenes = new ArrayList<>();
         if(fechaDesde != null && fechaHasta != null) {
             try {
-                rs = cn.consultar("SELECT * FROM Orden WHERE activa = false AND fecha = '" + fechaDesde + "' BETWEEN '" + fechaHasta + "'");
+                rs = cn.consultar("SELECT * FROM Orden WHERE activa = false AND fecha BETWEEN '" + fechaDesde + "' AND'" + fechaHasta + "'");
                 while (rs.next()) {
                     Orden o = new Orden();
                     o.idOrden = rs.getInt(1);
