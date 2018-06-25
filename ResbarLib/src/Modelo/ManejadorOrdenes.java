@@ -34,7 +34,7 @@ public class ManejadorOrdenes {
                 o.total = rs.getDouble(7);
                 o.activa = rs.getBoolean(8);
                 List<DetalleOrden> detalles;
-                try (ResultSet rs2 = cn.consultar("SELECT * FROM DetalleOrden WHERE idOrden = '"+o+"'")) {
+                try (ResultSet rs2 = cn.consultar("SELECT * FROM DetalleOrden WHERE idOrden = '"+o.idOrden+"'")) {
                     detalles = new ArrayList<>();
                     while(rs2.next()){
                         DetalleOrden d = new DetalleOrden();
@@ -60,7 +60,7 @@ public class ManejadorOrdenes {
                         detalles.add(d);
                     }
                 }
-                o.detalle = detalles;
+                o.detalle.addAll(detalles);
                 ordenes.add(o);
             }
         } catch (SQLException | ClassNotFoundException ex) {
@@ -234,7 +234,6 @@ public class ManejadorOrdenes {
                     o.detalle = detalles;
                     ordenes.add(o);
                 }
-                cn.cerrar();
             } catch (SQLException | ClassNotFoundException ex) {
                 throw new ErrorAplicacion("ManejadorOrdenes.buscarActivas()$Error: " + ex.getMessage());
             } finally {
@@ -395,7 +394,7 @@ public class ManejadorOrdenes {
         List<Orden> ordenes = new ArrayList<>();
         if(fechaDesde != null && fechaHasta != null) {
             try {
-                rs = cn.consultar("SELECT * FROM Orden WHERE activa = false AND fecha BETWEEN '" + fechaDesde + "' AND'" + fechaHasta + "'");
+                rs = cn.consultar("SELECT * FROM Orden WHERE activa = false AND fecha BETWEEN '" + fechaDesde + "' AND'" + fechaHasta + "' ORDER By fecha ASC");
                 while (rs.next()) {
                     Orden o = new Orden();
                     o.idOrden = rs.getInt(1);
