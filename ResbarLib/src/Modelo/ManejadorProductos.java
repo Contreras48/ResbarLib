@@ -112,7 +112,7 @@ public class ManejadorProductos {
     
     /* Agrega el objeto “producto” a la base de datos. */
     public static void insertar(Producto p) throws ErrorAplicacion{
-        if(p.idProducto > 0 && p.nombre.isEmpty() && p.precio > 0 && p.categoria.idCategoria > 0 && (p.area == 'c' || p.area == 'b' )){
+        if(p.idProducto > 0 && !p.nombre.isEmpty() && p.precio > 0 && p.categoria.idCategoria > 0 && (p.area == 'c' || p.area == 'b' )){
             Conexion cn = new Conexion();
             String sql = "INSERT INTO Producto(idProducto, nombre, precio, idCategoria, area) VALUES('"+p.idProducto+"', '"+p.nombre+"', '"+p.precio+"', '"+p.categoria.idCategoria+"', '"+p.area+"')";
             try {
