@@ -164,7 +164,9 @@ public class ManejadorOrdenes {
                     String sql = "UPDATE Orden SET mesero = ?, mesa = ?, cliente = ?, fecha = ?, comentario = ?, total = ?, activa = ? WHERE idOrden = ?";
                     cn.actualizarOrden(sql, o.idOrden, o.mesero, o.mesa, o.cliente, new java.sql.Date(o.fecha.getTime()), o.comentario, o.total, o.activa);
                     for (int i = 0; i < detalles.size(); i++) {
-                        cn.UID("INSERT INTO DetalleOrden(idOrden, idProducto, cantidad) VALUES('"+o.idOrden+"', '" +detalles.get(i).producto.idProducto+"', '"+detalles.get(i).cantidad+"')");
+                        if(o.detalle.get(i).cantidad > 0){
+                            cn.UID("INSERT INTO DetalleOrden(idOrden, idProducto, cantidad) VALUES('"+o.idOrden+"', '" +detalles.get(i).producto.idProducto+"', '"+detalles.get(i).cantidad+"')");
+                        }
                     }
                 } catch (SQLException | ClassNotFoundException ex) {
                         throw new ErrorAplicacion("ManejadorOrdenes.actualizar()$Error: "+ex.getMessage());
