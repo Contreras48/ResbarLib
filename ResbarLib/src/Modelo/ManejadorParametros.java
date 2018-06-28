@@ -52,7 +52,7 @@ public class ManejadorParametros {
     public static void actualizar(Parametro p) throws ErrorAplicacion{
         Conexion cn = new Conexion();
         String sql = "UPDATE Parametro SET valor = '"+p.valor+"' WHERE idParametro = '"+p.idParametro+"'";
-        if (!p.valor.isEmpty() && p.valor != null && p.idParametro>0 && p.nombre.isEmpty() && p.nombre==null ) {
+        if (!p.valor.isEmpty() && p.valor != null && p.idParametro>0) {
             try {
                 cn.UID(sql);
             } catch (ClassNotFoundException | SQLException ex) {
