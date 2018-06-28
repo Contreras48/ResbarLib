@@ -271,7 +271,9 @@ public class ManejadorOrdenes {
                     try {
                         cn.agregarOrden(sql, o.idOrden, o.mesero, o.mesa, o.cliente, new java.sql.Date(o.fecha.getTime()), o.comentario, o.total, o.activa);
                         for (DetalleOrden detalle : o.detalle) {
-                            cn.UID("INSERT INTO DetalleOrden(idOrden, idProducto, cantidad) VALUES('" + o.idOrden + "', '" + detalle.producto.idProducto + "', '" + detalle.cantidad + "')");
+                            if(detalle.cantidad > 0){
+                                cn.UID("INSERT INTO DetalleOrden(idOrden, idProducto, cantidad) VALUES('" + o.idOrden + "', '" + detalle.producto.idProducto + "', '" + detalle.cantidad + "')");
+                            }
                         }
                     } catch (ClassNotFoundException | SQLException ex) {
                         throw new ErrorAplicacion("ManejadorOrdenes.insertar()$Error: " + ex.getMessage());
