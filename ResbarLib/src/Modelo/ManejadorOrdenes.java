@@ -52,7 +52,7 @@ public class ManejadorOrdenes {
                                         p.categoria = c;
                                     }
                                 }
-                                p.area = rs.getString(5).charAt(0);
+                                p.area = rs3.getString(5).charAt(0);
                                 d.producto = p;
                                 d.cantidad = rs2.getDouble(3);
                             }
